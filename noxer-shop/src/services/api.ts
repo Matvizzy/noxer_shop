@@ -1,13 +1,11 @@
 import type { Product, FilterParams, ApiResponse } from '../types';
 import { mockData } from './mockData';
 
-// УБИРАЕМ BASE_URL - теперь запросы идут через прокси
-const API_PREFIX = '/webapp/api'; // ← Важно: без домена!
+const API_PREFIX = '/webapp/api'; 
 
 export const productsApi = {
   async getMainProducts(): Promise<Product[]> {
     try {
-      // Используем относительный путь
       const response = await fetch(`${API_PREFIX}/products/on_main`);
       if (!response.ok) throw new Error('Failed to fetch main products');
       return await response.json();
@@ -25,7 +23,6 @@ export const productsApi = {
     }
   ): Promise<ApiResponse<Product[]>> {
     try {
-      // 1. Собираем параметры для GET запроса
       const queryParams = new URLSearchParams();
       
       if (params.query) queryParams.append('query', params.query);
@@ -37,10 +34,9 @@ export const productsApi = {
       queryParams.append('per_page', (params.per_page || 8).toString());
       queryParams.append('page', (params.page || 1).toString());
       
-      // 2. Делаем GET запрос вместо POST
       const url = `${API_PREFIX}/products/filter?${queryParams.toString()}`;
       const response = await fetch(url, {
-        method: 'GET', // ← ВАЖНО: меняем POST на GET
+        method: 'GET', 
         headers: { 
           'Accept': 'application/json'
         }
