@@ -25,23 +25,25 @@ export const productsApi = {
     }
   ): Promise<ApiResponse<Product[]>> {
     try {
-      // Используем относительный путь
-      const response = await fetch(`${API_PREFIX}/products/filter`, {
-        method: 'POST',
+      // 1. Собираем параметры для GET запроса
+      const queryParams = new URLSearchParams();
+      
+      if (params.query) queryParams.append('query', params.query);
+      if (params.category) queryParams.append('category', params.category);
+      if (params.minPrice) queryParams.append('min_price', params.minPrice.toString());
+      if (params.maxPrice) queryParams.append('max_price', params.maxPrice.toString());
+      if (params.inStock) queryParams.append('in_stock', 'true');
+      if (params.sortBy) queryParams.append('sort_by', params.sortBy);
+      queryParams.append('per_page', (params.per_page || 8).toString());
+      queryParams.append('page', (params.page || 1).toString());
+      
+      // 2. Делаем GET запрос вместо POST
+      const url = `${API_PREFIX}/products/filter?${queryParams.toString()}`;
+      const response = await fetch(url, {
+        method: 'GET', // ← ВАЖНО: меняем POST на GET
         headers: { 
-          'Content-Type': 'application/json',
           'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          query: params.query || '',
-          category: params.category || '',
-          min_price: params.minPrice || 0,
-          max_price: params.maxPrice || 100000,
-          in_stock: params.inStock || false,
-          sort_by: params.sortBy || 'popular',
-          per_page: params.per_page || 8,
-          page: params.page || 1
-        }),
+        }
       });
       
       if (!response.ok) {
